@@ -82,3 +82,13 @@ exit
 ```
 
 Do not forget to spawn the shell again if you'd like to restart the assignment.
+
+### Sustainability & inclusivity improvements
+For Sustainability, CPU, memory and bandwidth usage is logged after every transfer to keep track and maintain reasonable and effecient usage of resources.
+For Inclusivity, localization is added (Malay/Chinese on top of English) to better suit users from diverse backgrounds.
+
+Note: do make sure the CMD terminal uses an appropriate code page if chinese is the desired language. One such code page is 936:
+```
+chcp 936
+
+```
