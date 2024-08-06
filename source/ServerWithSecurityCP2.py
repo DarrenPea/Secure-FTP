@@ -13,6 +13,9 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 import os
+from cryptography.hazmat.primitives import padding as sympadding
+
+from cryptography.hazmat.primitives.ciphers import algorithms, Cipher, modes
 
 
 def chunk_data(data, chunk_size):
@@ -52,7 +55,8 @@ def read_bytes(socket, length):
 def main(args):
     port = int(args[0]) if len(args) > 0 else 4321
     address = args[1] if len(args) > 1 else "localhost"
-
+    decrypted_ses_key=0
+    iv=0
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((address, port))
@@ -81,40 +85,34 @@ def main(args):
                             )
 
                             file_data = read_bytes(client_socket, file_len)
-                            # print(file_data)
+                            # get iv
+                            iv = file_data[:16]
+                            print("iv")
+                            print(iv)
+                            # Extract the rest as the encrypted data
 
+                            file_data = file_data[16:]
+                            print(file_data)
+                            filename = "recv_" + filename.split("/")[-1]
+                            # Create a Cipher object using AES in CBC mode
+                            cipher = Cipher(algorithms.AES(decrypted_ses_key), modes.CBC(iv), backend=default_backend())
+
+                            # Initialize decryptor
+                            decryptor = cipher.decryptor()
+
+                            # Decrypt the data
+                            decrypted_padded_data = decryptor.update(file_data) + decryptor.finalize()
+
+                            # Remove PKCS7 padding
+                            unpadder = sympadding.PKCS7(algorithms.AES.block_size).unpadder()
+                            decrypted_data = unpadder.update(decrypted_padded_data) + unpadder.finalize()
+                            # Write the file with 'recv_' prefix
                             filename = "recv_" + filename.split("/")[-1]
                             # Write the file with 'recv_files_enc' prefix
                             with open(
                                     f"recv_files_enc/{filename}", mode="wb"
                             ) as fp:
                                 fp.write(file_data)
-                            with open(
-                                    f"recv_files/{filename}", mode="wb"
-                            ) as fp:
-                                fp.write(decrypted_data)
-                            with open("source/auth/server_private_key.pem", mode="r", encoding="utf-8") as pem_file:
-                                private_key = serialization.load_pem_private_key(
-                                    bytes(pem_file.read(), encoding="utf-8"), password=None
-                                )
-                            key_size = private_key.key_size // 8  # key size in bytes
-                            encrypted_chunks = chunk_data(file_data, key_size)
-
-                            decrypted_chunks = []
-                            for chunk in encrypted_chunks:
-                                # file_data should be encrypted
-                                decrypted_chunk = private_key.decrypt(
-                                    chunk,
-                                    padding.OAEP(
-                                        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                                        algorithm=hashes.SHA256(),
-                                        label=None
-                                    )
-                                )
-                                decrypted_chunks.append(decrypted_chunk)
-                            decrypted_data = b''.join(decrypted_chunks)
-                            # Write the file with 'recv_' prefix
-
                             with open(
                                     f"recv_files/{filename}", mode="wb"
                             ) as fp:
@@ -161,6 +159,23 @@ def main(args):
                                 cert = cert_file.read()
                             client_socket.sendall(convert_int_to_bytes(len(cert)))
                             client_socket.sendall(cert)
+                        case 4:
+                            # If the packet is for transferring the filename
+                            print("Receiving key.")
+                            key_len = convert_bytes_to_int(
+                                read_bytes(client_socket, 8)
+                            )
+                            ses_key = read_bytes(
+                                client_socket, key_len
+                            )
+                            decrypted_ses_key=private_key.decrypt(ses_key,
+                                    padding.OAEP(
+                                        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                                        algorithm=hashes.SHA256(),
+                                        label=None
+                                    ))
+                            print("Received session key.")
+
 
     except Exception as e:
         print(e)

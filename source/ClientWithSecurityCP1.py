@@ -196,7 +196,12 @@ def main(args):
                 data = fp.read()
 
                 encrypted_data = encrypt_with_public_key(data, server_public_key)
-                print(encrypted_data)
+                filename = "enc_" + filename.split("/")[-1]
+                # Write the file with 'recv_files_enc' prefix
+                with open(
+                        f"send_files_enc/{filename}", mode="wb"
+                ) as fp:
+                    fp.write(encrypted_data)
                 s.sendall(convert_int_to_bytes(1))
                 s.sendall(convert_int_to_bytes(len(encrypted_data)))
                 s.sendall(encrypted_data)
