@@ -105,11 +105,11 @@ def main(args):
                                 decrypted_chunks.append(decrypted_chunk)
                             decrypted_data = b''.join(decrypted_chunks)
                             # Write the file with 'recv_' prefix
-                            print(decrypted_data)
+
                             with open(
                                     f"recv_files/{filename}", mode="wb"
                             ) as fp:
-                                fp.write(file_data)
+                                fp.write(decrypted_data)
                             print(
                                 f"Finished receiving file in {(time.time() - start_time)}s!"
                             )
