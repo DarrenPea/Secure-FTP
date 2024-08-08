@@ -315,9 +315,10 @@ def main(args):
 
         print(lang["authentication_successful"])
 
-        seskey = os.urandom(16)
-        iv = os.urandom(16)
-        encrypted_key = encrypt_with_public_key(seskey, server_public_key)
+        session_key_bytes = Fernet.generate_key()
+        session_key = Fernet(session_key_bytes)
+        # iv = os.urandom(16)
+        encrypted_key = encrypt_with_public_key(session_key_bytes, server_public_key)
         s.sendall(convert_int_to_bytes(4))
         s.sendall(convert_int_to_bytes(len(encrypted_key)))
         s.sendall(encrypted_key)
@@ -345,8 +346,9 @@ def main(args):
             # Send the file
             with open(filename, mode="rb") as fp:
                 data = fp.read()
-                encrypted_data_with_iv = encrypt_with_symmetric_key(data, seskey, iv)
-
+                # encrypted_data_with_iv = encrypt_with_symmetric_key(data, seskey, iv)
+                encrypted_data_with_iv = session_key.encrypt(data)
+                
                 filename = "enc_" + filename.split("/")[-1]
                 # Write the file with 'recv_files_enc' prefix
                 with open(
