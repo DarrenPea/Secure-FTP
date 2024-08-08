@@ -84,8 +84,6 @@ def main(args):
                             # print(file_data)
 
                             filename = "recv_" + filename.split("/")[-1]
-                            filename = "recv_" + filename.split("/")[-1]
-
                             # Write the file with 'recv_files_enc' prefix
                             with open(
                                     f"recv_files_enc/{filename}", mode="wb"
