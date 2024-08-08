@@ -86,28 +86,32 @@ def main(args):
 
                             file_data = read_bytes(client_socket, file_len)
                             # get iv
-                            iv = file_data[:16]
-                            print("iv")
-                            print(iv)
+                            # iv = file_data[:16]
+                            # print("iv")
+                            # print(iv)
                             # Extract the rest as the encrypted data
 
-                            file_data = file_data[16:]
-                            print(file_data)
+                            # print(file_data)
                             filename = "recv_" + filename.split("/")[-1]
                             # Create a Cipher object using AES in CBC mode
-                            cipher = Cipher(algorithms.AES(decrypted_ses_key), modes.CBC(iv), backend=default_backend())
-
+                            # cipher = Cipher(algorithms.AES(decrypted_ses_key), modes.CBC(iv), backend=default_backend())
+                            session_key = Fernet(decrypted_ses_key)
+                            print("before")
+                            # Decrypt the data
+                            print(file_data)
+                            decrypted_data = session_key.decrypt(file_data)
+                            print("done")
                             # Initialize decryptor
-                            decryptor = cipher.decryptor()
+                            # decryptor = cipher.decryptor()
 
                             # Decrypt the data
-                            decrypted_padded_data = decryptor.update(file_data) + decryptor.finalize()
+                            # decrypted_padded_data = decryptor.update(file_data) + decryptor.finalize()
 
                             # Remove PKCS7 padding
-                            unpadder = sympadding.PKCS7(algorithms.AES.block_size).unpadder()
-                            decrypted_data = unpadder.update(decrypted_padded_data) + unpadder.finalize()
+                            # unpadder = sympadding.PKCS7(algorithms.AES.block_size).unpadder()
+                            # decrypted_data = unpadder.update(decrypted_data) + unpadder.finalize()
                             # Write the file with 'recv_' prefix
-                            filename = "recv_" + filename.split("/")[-1]
+                            # filename = "recv_" + filename.split("/")[-1]
                             # Write the file with 'recv_files_enc' prefix
                             with open(
                                     f"recv_files_enc/{filename}", mode="wb"
