@@ -1,11 +1,26 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/vB1apsQV)
 # 50.005 Programming Assignment 2
 
 This assignment requires knowledge from Network Security and basic knowledge in Python.
 
 ## Secure FTP != HTTPs
 
-Note that you will be implementing Secure FTP as your own whole new application layer protocol. In NO WAY we are relying on HTTP/s. Please do not confuse the materials, you don't need to know materials in Week 11 and 12 before getting started.
+This project implements a **secure** file upload application between a client and a secure file server by fulfilling the following requirements:
+
+1. **Authentication** of the identity of the file server to prevent data leaks to random entity
+2. Ensure that the client is talking to a **live** server
+3. Ensure **confidentiality** of the data against eavesdroppers
+
+More information on how the above requirements are fulfilled will be dissected [here](https://github.com/DarrenPea/SFTP/tree/master/source)
+
+### Sustainability & Inclusivity improvements
+For Sustainability, CPU, memory and bandwidth usage is logged after every transfer to keep track and maintain reasonable and effecient usage of resources.
+
+For Inclusivity, localization is added (Malay/Chinese on top of English) to better suit users from diverse backgrounds.
+
+Note: do make sure the CMD terminal uses an appropriate code page if chinese is the desired language. One such code page is 936:
+```
+chcp 936
+```
 
 ## Running the code
 
@@ -82,13 +97,3 @@ exit
 ```
 
 Do not forget to spawn the shell again if you'd like to restart the assignment.
-
-### Sustainability & inclusivity improvements
-For Sustainability, CPU, memory and bandwidth usage is logged after every transfer to keep track and maintain reasonable and effecient usage of resources.
-
-For Inclusivity, localization is added (Malay/Chinese on top of English) to better suit users from diverse backgrounds.
-
-Note: do make sure the CMD terminal uses an appropriate code page if chinese is the desired language. One such code page is 936:
-```
-chcp 936
-```
